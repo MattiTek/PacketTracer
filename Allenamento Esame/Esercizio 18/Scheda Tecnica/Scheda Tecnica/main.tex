@@ -82,49 +82,43 @@
             \begin{center}
                 \label{fig:mappa}
                 \caption{Disegno dell'esercizio}
-                \includegraphics[width = 15cm]{Assets/MappaCompletapng.png}
+                \includegraphics[width = 15cm]{Assets/MappaCompleta.png}
             \end{center}
         \end{figure}
 
     \subsection{Descrizione}
     \noindent Per la creazione della mappa, che vediamo in Figura \ref*{fig:mappa}, utilizziamo: 
         \begin{itemize}
-            \item \textbf{3} \textit{Switch Layer 2} per i piani \textbf{T}, \textbf{1} e \textbf{2};
-            \item \textbf{1} \textit{Switch Layer 3} per effettuare l'\textit{inter-vlan routing};
-            \item \textbf{1} \textit{Router 2911} per effettuare l'accesso ad Internet.
+            \item \textbf{3} \textit{Switch Layer 2}, modelli \textit{2960-24TT}, per i piani \textbf{T}, \textbf{1} e 
+                \textbf{2};
+            \item \textbf{1} \textit{Switch Layer 3}, modello \textit{3560-24PS}, per effettuare l'\textit{inter-vlan routing};
+            \item \textbf{1} \textit{Router}, modello \textit{2911}, per effettuare l'accesso ad Internet.
         \end{itemize} 
 
 
     \newpage
     \section{Assegnamento e Indirizzamento}
 
-    \subsection{Assegnamento della VLAN}
+    \subsection{Assegnamento delle VLAN}
     Le VLAN utilizzate sono:
-        \begin{table}[h!]
-            \centering
-            \caption{Tabella delle VLAN}
-            ~ \\
-            \begin{tabular}{|c|c|c|}
-                \hline
-                \cellcolor{babyblue} \textbf{Numero} & \cellcolor{babyblue} \textbf{Nome} & \cellcolor{babyblue} \textbf{Indirizzo} \\
-                \hline
-                VLAN 10 & VLAN\_Personale & 192.168.1.0/24 \\ 
-                \hline
-                VLAN 20 & VLAN\_Contabilità & 192.168.2.0/24 \\ 
-                \hline
-                VLAN 10 & VLAN\_Acquisti & 192.168.3.0/24 \\ 
-                \hline
-            \end{tabular}
-        \label{tab:TabellaVLAN}
-        \end{table}
+        \begin{figure}[h!]
+            \begin{center}
+                \label{tab:TabellaVLAN}
+                \caption{Tabella delle VLAN}
+                ~ \\
+                \includegraphics[width = 15cm]{Assets/TabellaDelleVlan.png}    
+            \end{center}
+        \end{figure}
 
     \subsection{Assegnamento Indirizzi}
-    \noindent Dopo aver impostato le VLAN, come visto nella tabella \ref*{tab:TabellaVLAN}, impostiamo il piano di indirizzamento nella tabella \ref*{tab:indirizzamento} 
+    \noindent Dopo aver impostato le VLAN, come visto nella tabella \ref*{tab:TabellaVLAN}, impostiamo il piano di indirizzamento nella tabella \ref*{tab:indirizzamento}, 
+        tramite il DHCP
         \begin{figure}[h!]
             \begin{center}
                 \label{tab:indirizzamento}
                 \caption{Piano di Indirizzamento}
-                \includegraphics[width = 15cm]{Assets/TabellaIndirizzi.png}
+                ~ \\ 
+                \includegraphics[width = 15cm]{Assets/TabellaDegliIndirizzi.png}
             \end{center}
         \end{figure}
 
@@ -142,7 +136,7 @@
             Spegniamo le Interfacce non usate
             \begin{tcolorbox}[title=SwitchPianoT, colframe=gray!50!gray, colback=white!50!white]
                 \begin{lstlisting}
-#(config) interface range FastEthernet0/9-24
+#(config) interface range FastEthernet0/10-24
 #(config-if-range) shutdown
                 \end{lstlisting}
             \end{tcolorbox}
@@ -155,31 +149,33 @@
 #(config) VLAN 20
 #(config-vlan) name VLAN-Contabilita
 #(config-vlan) exit
-#(config) VLAN 100
-#(config-vlan) name VLAN-Inter_Vlan
+#(config) VLAN 30
+#(config-vlan) name VLAN-Acquisti
 #(config-vlan) exit
                 \end{lstlisting}
             \end{tcolorbox}
-            Aggiungiamo le Interfacce alla VLAN
+            Assegnamo le Interfacce alla VLAN. Quando una porta viene configurata come modalità access, significa che viene assegnata a una singola VLAN specifica e non trasmetterà il traffico di più VLAN come avviene sulle porte trunk.
             \begin{tcolorbox}[title=SwitchPianoT, colframe=gray!50!gray, colback=white!50!white]
                 \begin{lstlisting}
-#(config) interface range Fa0/1-4
+#(config) interface range Fa0/1-5
 #(config-if-range) switchport mode access
 #(config-if-range) switchport access vlan 10
 
-#(config) interface range Fa0/5-8
+#(config) interface range Fa0/6-9
 #(config-if-range) switchport mode access
 #(config-if-range) switchport access vlan 20
                 \end{lstlisting} 
             \end{tcolorbox}
-            Infine impostiamo la porta trunk 
+
+            \newpage
+            Infine impostiamo la porta trunk, la principale utilità di una porta trunk è quella di facilitare la comunicazione tra dispositivi appartenenti a diverse VLAN
             \begin{tcolorbox}[title=SwitchPianoT, colframe=gray!50!gray, colback=white!50!white]
                 \begin{lstlisting}
 #(config) interface GigabitEthernet0/1
 #(config-if) switchport mode trunk
                 \end{lstlisting} 
             \end{tcolorbox}
-            Analogamente, ripetiamo le istruzioni appena descritte sugli altri 2 Switch L2 (Piano1 e Piano 2). 
+            Analogamente, ripetiamo le istruzioni appena descritte sugli altri 2 Switch L2 (Piano1 e Piano2). 
         \end{center}
 
     \subsection{Configurazione - Switch Layer 3}
@@ -190,7 +186,7 @@
 #(config) ip routing
                 \end{lstlisting}
             \end{tcolorbox}
-            Andiamo a creare le VLAN che verranno instradate 
+            Andiamo a definire le VLAN che verranno instradate 
             \begin{tcolorbox}[title=Multilayer Switch, colframe=gray!50!gray, colback=white!50!white]
                 \begin{lstlisting}
 #(config) VLAN 10
@@ -201,9 +197,6 @@
 #(config-vlan) exit
 #(config) VLAN 30
 #(config-vlan) name VLAN-Acquisti
-#(config-vlan) exit
-#(config) VLAN 100
-#(config-vlan) name VLAN-Inter_Vlan
 #(config-vlan) exit
                 \end{lstlisting}
             \end{tcolorbox}
@@ -220,7 +213,9 @@
 #(config-if) ip address 192.168.3.1 255.255.255.0
                 \end{lstlisting} 
             \end{tcolorbox}
-            Impostiamo la porta trunk abilitata per l'uso del protoccolo 802.1q
+
+            \newpage
+            Impostiamo la porta trunk abilitata per l'uso del protoccolo 802.1q. Quando si abilita una porta trunk per l'uso del protocollo 802.1Q, si sta configurando la porta per consentire il trasporto di dati appartenenti a più VLAN attraverso un singolo collegamento fisico. 
             \begin{tcolorbox}[title=Multilayer Switch, colframe=gray!50!gray, colback=white!50!white]
                 \begin{lstlisting}
 #(config) interface GigabitEthernet0/1
@@ -233,55 +228,75 @@
                 \begin{lstlisting}
 #(config) interface GigabitEthernet0/2
 #(config-if) no switchport
-#(config-if) ip address 12.0.0.1 255.255.255.252
+#(config-if) ip address 10.0.0.1 255.255.255.252
                 \end{lstlisting} 
             \end{tcolorbox}
             Inseriamo la Rotta Statica di Default
             \begin{tcolorbox}[title=Multilayer Switch, colframe=gray!50!gray, colback=white!50!white]
                 \begin{lstlisting}
-#(config) ip route 0.0.0.0 0.0.0.0 12.0.0.2
+#(config) ip route 0.0.0.0 0.0.0.0 10.0.0.2
                 \end{lstlisting} 
             \end{tcolorbox}
             Inseriamo le Rotte Dinamiche 
             \begin{tcolorbox}[title=Multilayer Switch, colframe=gray!50!gray, colback=white!50!white]
                 \begin{lstlisting}
 #(config) Router Rip
-#(config-router) network 11.0.0.0
+#(config-router) network 10.0.0.0
 #(config-router) network 192.168.1.0
 #(config-router) network 192.168.2.0
 #(config-router) network 192.168.3.0
                 \end{lstlisting} 
             \end{tcolorbox}
+
+            \newpage
+            Definiamo i comandi per i pool DHCP, che è un protocollo di rete utilizzato per assegnare automaticamente indirizzi IP, 
+                alle rispettive VLAN
+            \begin{tcolorbox}[title=Multilayer Switch, colframe=gray!50!gray, colback=white!50!white]
+                \begin{lstlisting}
+#(config) ip dhcp pool poolVLANPersonale
+#(dhcp-config) network 192.168.1.0 255.255.255.0
+#(dhcp-config) default-router 192.168.1.1
+
+#(config) ip dhcp pool poolVLANContabilita
+#(dhcp-config) network 192.168.2.0 255.255.255.0
+#(dhcp-config) default-router 192.168.2.1
+
+#(config) ip dhcp pool poolVLANAcquisti
+#(dhcp-config) network 192.168.3.0 255.255.255.0
+#(dhcp-config) default-router 192.168.3.1
+                \end{lstlisting} 
+            \end{tcolorbox}
         \end{center}
 
+    \newpage
     \subsection{Configurazione - Router}
     \begin{center}
         Configuriamo l'Interfaccia che "va" verso lo Switch L3
-        \begin{tcolorbox}[title=Multilayer Switch, colframe=gray!50!gray, colback=white!50!white]
+        \begin{tcolorbox}[title=Router, colframe=gray!50!gray, colback=white!50!white]
             \begin{lstlisting}
 #(config) interface GigabitEthernet0/0
-#(config-if) ip address 12.0.0.2 255.255.255.252
+#(config-if) ip address 10.0.0.2 255.255.255.252
             \end{lstlisting}
-            Passiamo a quella che "va" verso la LAN Dei Server
+        \end{tcolorbox} 
+        Passiamo a quella che "va" verso Internet
+        \begin{tcolorbox}[title=Router, colframe=gray!50!gray, colback=white!50!white]
             \begin{lstlisting}
 #(config) interface GigabitEthernet0/1
-#(config-if) ip address 192.168.5.1 255.255.255.0
+#(config-if) ip address 11.0.0.1 255.255.255.240
 \end{lstlisting}
         \end{tcolorbox}
         Inseriamo la Rotta Statica di Default
             \begin{tcolorbox}[title=Multilayer Switch, colframe=gray!50!gray, colback=white!50!white]
                 \begin{lstlisting}
-#(config) ip route 0.0.0.0 0.0.0.0 12.0.0.1
+#(config) ip route 0.0.0.0 0.0.0.0 11.0.0.2
                 \end{lstlisting} 
             \end{tcolorbox}
             Inseriamo le Rotte Dinamiche 
-            \begin{tcolorbox}[title=Multilayer Switch, colframe=gray!50!gray, colback=white!50!white]
+            \begin{tcolorbox}[title=Router, colframe=gray!50!gray, colback=white!50!white]
                 \begin{lstlisting}
 #(config) Router Rip
 #(config-router) network 11.0.0.0
-#(config-router) network 192.168.5.0
                 \end{lstlisting}    
             \end{tcolorbox}
-            Andiamo poi ad assegnare gli indirizzi ai server.
     \end{center}
 \end{document}
