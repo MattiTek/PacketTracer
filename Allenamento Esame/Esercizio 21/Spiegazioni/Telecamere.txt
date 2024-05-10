@@ -1,0 +1,25 @@
+* TELECAMERE *
+
+	*Configurabili tramite cavo Ethernet e/o Wi-Fi
+	*Advanced 
+		*Scegliere l'Adapter in base alla connettività
+	*Cavo d'alimentazione
+	*Config
+		*Nome univoco
+		*Scegliere l'Interfaces
+		*DG e Indirizzo del Server che le gestisce 
+		*User and Pass 
+	*Config Interface Wirless o Ethernet (Come solito)
+	*Thing Editor
+		*Aggiungere Immagine per l'ON e per l'OFF
+	
+* SERVER TELECAMERE *
+	
+	*Config 
+		*Nome univoco
+		*IP e DG 
+	*Service
+		*IoT Service
+	*Browser
+		*Pingo il server 
+		*Creo, se non già esistente, l'account di configurazione delle cam
